@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
 
@@ -37,6 +38,39 @@ def adjacency_matrix_to_incidence_matrix(adjacency_matrix):
                 edge_index += 1
     return incidence_matrix
 
+
+def incidence_matrix_to_adjacency_list(incidence_matrix):
+	num_of_verticles = len(incidence_matrix)
+	num_of_edges = len(incidence_matrix[0])
+	adjacency_list = list([] for i in range(num_of_verticles))
+
+	for i in range(num_of_edges):
+		edges = incidence_matrix[:, i]
+		found = np.where(edges == 1)
+		if found[0].size > 1:
+			# Simple graph ( size = 2 )
+			adjacency_list[found[0][0]].append(found[0][1] +1)
+			adjacency_list[found[0][1]].append(found[0][0] +1)
+
+	return adjacency_list
+
+
+def incidence_matrix_to_adjacency_matrix(incidence_matrix):
+	num_of_verticles = len(incidence_matrix)
+	num_of_edges = len(incidence_matrix[0])
+	adjacency_matrix = np.zeros((num_of_verticles, num_of_verticles), dtype=int)
+
+	for i in range(num_of_edges):
+		edges = incidence_matrix[:, i]
+		found = np.where(edges == 1)
+		if found[0].size > 1:
+			# Simple graph ( size = 2 )
+			adjacency_matrix[found[0][0]][found[0][1]] = 1
+			adjacency_matrix[found[0][1]][found[0][0]] = 1
+
+	return adjacency_matrix
+
+
 if __name__ == '__main__':
 
     path = "Lab01/data/" + input("Please provide path to file\n")
@@ -66,7 +100,10 @@ if __name__ == '__main__':
 
     # if provided file contains incident Matrix
     elif type == 3:
-        pass
+        incident_matrix = pd.read_csv(path, sep=' ', header=None).to_numpy()
+        adjacency_list = incidence_matrix_to_adjacency_list(incident_matrix)
+        adjacency_matrix = incidence_matrix_to_adjacency_matrix(incident_matrix)
+
     else :
         print("Unknown number provided :(")
 
