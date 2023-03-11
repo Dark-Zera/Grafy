@@ -71,13 +71,14 @@ def incidence_matrix_to_adjacency_matrix(incidence_matrix):
     return adjacency_matrix
 
 
-def draw_graph(adjacency_matrix):
+def draw_graph(adjacency_matrix, title=''):
     _, ax = plt.subplots()
     circle = plt.Circle((0, 0), 1, fill=False, color='r', linestyle='--', linewidth=2, alpha=0.5)
     ax.add_patch(circle)
+    ax.axis('equal')
+    ax.set_title(title)
     G = nx.from_numpy_array(adjacency_matrix)
-    nx.draw_circular(G, with_labels=True)
-    plt.axis('equal')
+    nx.draw_circular(G, with_labels=True, ax=ax)
     plt.show()
 
 

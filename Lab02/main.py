@@ -4,6 +4,8 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import random
 
+from Lab01.main import draw_graph
+
 
 def is_seq_graphical(data):
     data = np.sort(data.flatten())
@@ -75,15 +77,66 @@ def randomise_graph(old_data, repeat):
 
 
 def generate_euler_graph():
-    nodes = random.randint(0, 10)
-    degrees = [random.randint(1, 4) * 2 for i in range(nodes)]
+    nodes = random.randint(4, 10)
+    degrees = np.array([random.randint(1, int((nodes - 1) / 2)) * 2 for i in range(nodes)])
 
     adjacency_matrix = build_graph_from_degrees(degrees)
-    randomise_graph(adjacency_matrix, random.randint(0, 100))
+    randomise_graph(adjacency_matrix, random.randint(0, 10))
+
+    print("Euler cycle for generated graph: ", fleury_algorithm(adjacency_matrix))
+    draw_graph(adjacency_matrix, 'Randomised euler graph')
 
 
-def get_euler_cycle(adjacency_matrix):
-    adjacency_matrix
+def fleury_algorithm(adjacency_matrix):
+    temp_adjacency_matrix = np.copy(adjacency_matrix)
+    n = len(temp_adjacency_matrix)
+    current_node = 0
+    circuit = [current_node]
+    edges_left = sum(sum(row) for row in temp_adjacency_matrix) // 2
+
+    while edges_left > 0:
+        next_node = None
+
+        for i in range(n):
+            if temp_adjacency_matrix[current_node][i] == 1:
+                disconnected = True
+                temp_adjacency_matrix[current_node][i] = 0
+                temp_adjacency_matrix[i][current_node] = 0
+
+                for j in range(n):
+                    if temp_adjacency_matrix[i][j] == 1:
+                        disconnected = False
+                        break
+
+                if not disconnected:
+                    next_node = i
+                    break
+                else:
+                    temp_adjacency_matrix[current_node][i] = 1
+                    temp_adjacency_matrix[i][current_node] = 1
+
+        if next_node is None:
+            if edges_left == 1:
+                circuit.append(0)
+            else:
+                circuit.pop()
+                current_node = circuit[-1]
+        else:
+            circuit.append(next_node)
+            current_node = next_node
+
+        edges_left -= 1
+
+    return circuit
+
+
+def draw_graph_with_subplots(matrix, ax, title=''):
+    circle = plt.Circle((0, 0), 1, fill=False, color='r', linestyle='--', linewidth=2, alpha=0.5)
+    ax.add_patch(circle)
+    G = nx.from_numpy_array(matrix)
+    ax.axis('equal')
+    ax.set_title(title)
+    nx.draw_circular(G, with_labels=True, ax=ax)
 
 
 def __connected_component_recursive(nr, index, adjacency_matrix, comp):
@@ -126,14 +179,14 @@ def largest_connected_component(adjacency_matrix):
 
 
 if __name__ == '__main__':
-    path = 'data/'
-    path += input(
-        'Enter path to file containing graph data in form of list of degrees.\n(ex. g1.txt ) {Format of data: 4 3 2 1}\n\t\tPath: ')
-    print(path)
-    type = int(input('1.) Graph based on degrees\n2.) Euler\n3.) Hamilton\nOption:'))
+    type = int(input('1. Graph based on degrees\n2. Euler\n3. Hamilton\nOption: '))
     print('')
 
     if type == 1:
+        path = 'data/'
+        path += input(
+            'Enter path to file containing graph data in form of list of degrees.\nPath: ')
+        print('')
         degrees_data = pd.read_csv(path, sep=' ', header=None).to_numpy()
         print('Data: ', degrees_data.flatten())
 
@@ -143,28 +196,19 @@ if __name__ == '__main__':
 
         adjacency_matrix = build_graph_from_degrees(degrees_data)
         rand_adjacency_matrix = randomise_graph(adjacency_matrix, 10)
+        print('Largest connected component list: ', largest_connected_component(adjacency_matrix))
 
         _, axies = plt.subplots(1, 2)
 
-        circle1 = plt.Circle((0, 0), 1, fill=False, color='r', linestyle='--', linewidth=2, alpha=0.5)
-        axies[0].add_patch(circle1)
-        G = nx.from_numpy_array(adjacency_matrix)
-        axies[0].axis('equal')
-        axies[0].set_title('Graph from data')
-        nx.draw_circular(G, with_labels=True, ax=axies[0])
-
-        circle2 = plt.Circle((0, 0), 1, fill=False, color='r', linestyle='--', linewidth=2, alpha=0.5)
-        axies[1].add_patch(circle2)
-        G2 = nx.from_numpy_array(rand_adjacency_matrix)
-        axies[1].axis('equal')
-        axies[1].set_title('Randomise graph')
-        nx.draw_circular(G2, with_labels=True, ax=axies[1])
+        draw_graph_with_subplots(adjacency_matrix, axies[0], 'Graph from data')
+        draw_graph_with_subplots(rand_adjacency_matrix, axies[1], 'Randomise graph')
 
         plt.show()
 
     elif type == 2:
-        pass
+        generate_euler_graph()
     elif type == 3:
         pass
     else:
         print('Wrong option.')
+
