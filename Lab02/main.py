@@ -178,6 +178,25 @@ def largest_connected_component(adjacency_matrix):
     return largest_component_list
 
 
+def print_graph_from_adjacency_matrix(adjacency_matrix):
+    G = nx.from_numpy_array(np.array(adjacency_matrix))
+    nx.draw_circular(G, with_labels=True)
+    plt.axis('equal')
+    plt.show()
+
+
+def generate_random_regular_graph(n, k):
+    if k > n:
+        return None
+    elif k % 2 == 1 and n % 2 == 1:
+        return None
+    else:
+        degrees = [k for node in range(n)]
+        matrix = build_graph_from_degrees(np.array(degrees))
+        matrix = randomise_graph(matrix, 5)
+        return matrix
+
+
 if __name__ == '__main__':
     type = int(input('1. Graph based on degrees\n2. Euler\n3. Hamilton\nOption: '))
     print('')
