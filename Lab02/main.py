@@ -4,7 +4,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import random
 
-from Lab01.main import draw_graph
+from Lab01.main import draw_graph, adjacency_matrix_to_adjacency_list
 
 
 def is_seq_graphical(data):
@@ -78,7 +78,7 @@ def randomise_graph(old_data, repeat):
 
 def generate_euler_graph():
     nodes = random.randint(4, 10)
-    degrees = np.array([random.randint(1, int((nodes - 1) / 2)) * 2 for i in range(nodes)])
+    degrees = np.array([random.randint(1, nodes) for i in range(nodes)])
 
     adjacency_matrix = build_graph_from_degrees(degrees)
     randomise_graph(adjacency_matrix, random.randint(0, 10))
@@ -128,6 +128,46 @@ def fleury_algorithm(adjacency_matrix):
         edges_left -= 1
 
     return circuit
+
+
+def find_hamiltonian_cycle():
+    nodes = random.randint(3, 6)
+    degrees = np.array([random.randint(1, nodes - 1) for i in range(nodes)])
+    adjacency_list = adjacency_matrix_to_adjacency_list(build_graph_from_degrees(degrees))
+
+    if len(adjacency_list) < 3:
+        return None
+
+    path = [0]
+    visited = set([0])
+    start_vertex = 0
+    cycle = backtrack(start_vertex, adjacency_list, visited, path)
+
+    if cycle is None:
+        print("Graph doesn't include hamitlon cycle")
+        return None
+
+    cycle.append(0)
+    print("Hamilton cycle: ", cycle)
+
+
+def backtrack(vertex, adjacency_list, visited, path):
+    if len(visited) == len(adjacency_list) and vertex in adjacency_list[0]:
+        return path
+
+    for neighbor in adjacency_list[vertex]:
+        if neighbor not in visited:
+            visited.add(neighbor)
+            path.append(neighbor)
+            cycle = backtrack(neighbor, adjacency_list, visited, path)
+
+            if cycle is not None:
+                return cycle
+
+            visited.remove(neighbor)
+            path.pop()
+
+    return None
 
 
 def draw_graph_with_subplots(matrix, ax, title=''):
@@ -227,7 +267,7 @@ if __name__ == '__main__':
     elif type == 2:
         generate_euler_graph()
     elif type == 3:
-        pass
+        find_hamiltonian_cycle()
     else:
         print('Wrong option.')
 

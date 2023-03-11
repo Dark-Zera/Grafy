@@ -9,7 +9,7 @@ def adjacency_matrix_to_adjacency_list(matrix):
         adjacency_list.append([])
         for i in range(len(row)):
             if row[i] == 1:
-                adjacency_list[-1].append(i + 1)
+                adjacency_list[-1].append(i)
 
     return adjacency_list
 
@@ -19,7 +19,7 @@ def adjacency_list_to_adjacency_matrix(adjacency_list):
     index = 0
     for row in adjacency_list:
         for column in row:
-            adjacency_matrix[index][column - 1] = 1
+            adjacency_matrix[index][column] = 1
         index += 1
 
     return adjacency_matrix
