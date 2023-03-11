@@ -2,6 +2,7 @@ import random
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
+from main import incidence_matrix_to_adjacency_matrix
 
 def generateRandomGraphNodesLines(nodes, lines):
     incident_matrix = [[0 for i in range(lines)] for j in range(nodes)]
@@ -11,11 +12,10 @@ def generateRandomGraphNodesLines(nodes, lines):
         incident_matrix[selectedNodes[0]][column] = 1
         incident_matrix[selectedNodes[1]][column] = 1
 
-
-    # G = nx.from_numpy_array(np.array())
-    # nx.draw_circular(G, with_labels=True)
-    # plt.axis('equal')
-    # plt.show()
+    G = nx.from_numpy_array(incidence_matrix_to_adjacency_matrix(incident_matrix))
+    nx.draw_circular(G, with_labels=True)
+    plt.axis('equal')
+    plt.show()
 
     return incident_matrix
 
@@ -36,5 +36,4 @@ def generateRandomGraphNodesProbability(nodes, probability):
     return adjacency_matrix
 
 
-
-generateRandomGraphNodesProbability(15, 0.3)
+generateRandomGraphNodesLines(15, 10)

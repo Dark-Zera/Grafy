@@ -72,9 +72,10 @@ def randomise_graph(old_data, repeat):
 	return data
 
 if __name__ == '__main__':
-	path = 'Lab02/data/'
+	path = 'data/'
 	path += input('Enter path to file containing graph data in form of list of degrees.\n\
-	       (ex. g1.txt ) {Format of data: 4 3 2 1}\n\t\tPath:')
+	       (ex. g1.txt ) {Format of data: 4 3 2 1}\n\t\tPath: ')
+	print(path)
 	type = int(input('1.) Graph based on degrees\n2.) Euler\n3.) Hamilton\nOption:'))
 	print('')
 	
@@ -90,10 +91,6 @@ if __name__ == '__main__':
 		rand_adjacency_matrix = randomise_graph(adjacency_matrix,  10)
 
 		_, axies = plt.subplots(1, 2)
-
-		# Long first loading
-		plt.rc('text', usetex=True)
-		plt.rc('font', family='serif')
 
 		circle1 = plt.Circle((0, 0), 1, fill=False, color='r', linestyle='--', linewidth=2, alpha=0.5)
 		axies[0].add_patch(circle1)
