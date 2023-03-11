@@ -86,6 +86,45 @@ def get_euler_cycle(adjacency_matrix):
     adjacency_matrix
 
 
+def __connected_component_recursive(nr, index, adjacency_matrix, comp):
+    neighbours = []
+    for index, node in enumerate(adjacency_matrix[index]):
+        if node == 1:
+            neighbours.append(index)
+
+    for node in neighbours:
+        if comp[node] == -1:
+            comp[node] = nr
+            __connected_component_recursive(nr, node, adjacency_matrix, comp)
+
+
+def connected_component(adjacency_matrix):
+    nr = 0
+    comp = [-1 for row in adjacency_matrix]
+
+    for index, row in enumerate(adjacency_matrix):
+        if comp[index] == -1:
+            nr += 1
+            comp[index] = nr
+            __connected_component_recursive(nr, index, adjacency_matrix, comp)
+
+    return comp
+
+
+def largest_connected_component(adjacency_matrix):
+    comp = connected_component(adjacency_matrix)
+
+    largest_component = 0
+    for node in comp:
+        current_component = comp.count(node)
+        if current_component > largest_component:
+            largest_component = current_component
+
+    largest_component_list = [index for index, node in enumerate(comp) if comp.count(node) == largest_component]
+
+    return largest_component_list
+
+
 if __name__ == '__main__':
     path = 'data/'
     path += input(
