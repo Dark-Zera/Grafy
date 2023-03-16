@@ -7,34 +7,34 @@ import random
 from Lab01.main import draw_graph, adjacency_matrix_to_adjacency_list
 
 
-def is_seq_graphical(data):
-    data = np.sort(data.flatten())
-    data = data[::-1]
+def is_seq_graphical(seq):
+    seq = np.sort(seq.flatten())
+    seq = seq[::-1]
 
-    if np.take(data, 0) > data.size or np.sum(data) % 2:
+    if np.take(seq, 0) > seq.size or np.sum(seq) % 2:
         return False
 
     while True:
-        max_value = np.take(data, 0)
+        max_value = np.take(seq, 0)
 
-        if np.take(data, -1) < 0:
+        if np.take(seq, -1) < 0:
             return False
         elif max_value == 0:
             return True
 
         for i in range(1, max_value + 1):
-            data[i] -= 1
+            seq[i] -= 1
 
-        data.itemset(0, 0)
-        data = np.sort(data)
-        data = data[::-1]
+        seq.itemset(0, 0)
+        seq = np.sort(seq)
+        seq = seq[::-1]
 
 
-def build_graph_from_degrees(data):
-    data = np.sort(data.flatten())
-    data = data[::-1]
-    degrees = dict(enumerate(data))
-    num_of_verticles = data.size
+def build_graph_from_degrees(seq):
+    seq = np.sort(seq.flatten())
+    seq = seq[::-1]
+    degrees = dict(enumerate(seq))
+    num_of_verticles = seq.size
     adjacency_matrix = np.zeros((num_of_verticles, num_of_verticles), dtype=int)
 
     for _ in range(num_of_verticles):
@@ -52,10 +52,10 @@ def build_graph_from_degrees(data):
     return adjacency_matrix
 
 
-def randomise_graph(old_data, repeat):
-    data = np.copy(old_data)
+def randomise_graph(graph, repeat):
+    rand_graph = np.copy(graph)
     while repeat:
-        edges = np.where(data == 1)
+        edges = np.where(rand_graph == 1)
         t_edges = list(zip(edges[0], edges[1]))
 
         e1, e2 = random.sample(t_edges, 2)
@@ -64,27 +64,33 @@ def randomise_graph(old_data, repeat):
         if new_e1[0] == new_e1[1] or new_e2[0] == new_e2[1]:
             continue
         if (new_e1 not in t_edges) and (new_e2 not in t_edges):
-            data.itemset((e1[0], e1[1]), 0)
-            data.itemset((e2[0], e2[1]), 0)
-            data.itemset((e1[1], e1[0]), 0)
-            data.itemset((e2[1], e2[0]), 0)
-            data.itemset((new_e1[0], new_e1[1]), 1)
-            data.itemset((new_e2[0], new_e2[1]), 1)
-            data.itemset((new_e1[1], new_e1[0]), 1)
-            data.itemset((new_e2[1], new_e2[0]), 1)
+            rand_graph.itemset((e1[0], e1[1]), 0)
+            rand_graph.itemset((e2[0], e2[1]), 0)
+            rand_graph.itemset((e1[1], e1[0]), 0)
+            rand_graph.itemset((e2[1], e2[0]), 0)
+            rand_graph.itemset((new_e1[0], new_e1[1]), 1)
+            rand_graph.itemset((new_e2[0], new_e2[1]), 1)
+            rand_graph.itemset((new_e1[1], new_e1[0]), 1)
+            rand_graph.itemset((new_e2[1], new_e2[0]), 1)
             repeat -= 1
-    return data
+    return rand_graph
+
+
+def is_graph_compact(component_list):
+    num_of_comp = np.unique(component_list).size
+    if num_of_comp == 1:
+        return True
+    return False
 
 
 def generate_euler_graph():
-    nodes = random.randint(4, 10)
-    degrees = np.array([random.randint(1, nodes) for i in range(nodes)])
+    adjacency_matrix = generate_graph(4, 10)
+    while any([sum(vert) % 2 == 1 for vert in adjacency_matrix]):
+        adjacency_matrix = generate_graph(4, 10)
+    while not is_graph_compact(connected_component(adjacency_matrix)):
+        adjacency_matrix = randomise_graph(adjacency_matrix, 1)
 
-    adjacency_matrix = build_graph_from_degrees(degrees)
-    randomise_graph(adjacency_matrix, random.randint(0, 10))
-
-    print("Euler cycle for generated graph: ", fleury_algorithm(adjacency_matrix))
-    draw_graph(adjacency_matrix, 'Randomised euler graph')
+    return adjacency_matrix
 
 
 def fleury_algorithm(adjacency_matrix):
@@ -129,14 +135,28 @@ def fleury_algorithm(adjacency_matrix):
 
     return circuit
 
+def generate_graph(min_vert, max_vert):
+    nodes = random.randint(min_vert, max_vert)
+    degrees = np.array([random.randint(1, nodes-1) for _ in range(nodes)])
+    while not is_seq_graphical(degrees):
+        degrees = np.array([random.randint(1, nodes-1) for _ in range(nodes)])
+    adjacency_matrix = build_graph_from_degrees(degrees)
 
-def find_hamiltonian_cycle():
-    nodes = random.randint(3, 6)
-    degrees = np.array([random.randint(1, nodes - 1) for i in range(nodes)])
-    adjacency_list = adjacency_matrix_to_adjacency_list(build_graph_from_degrees(degrees))
+    return adjacency_matrix
 
-    if len(adjacency_list) < 3:
-        return None
+
+def is_graph_hamiltonian_quick_check(adjacency_matrix):
+    if not is_graph_compact(connected_component(adjacency_matrix)):
+        return False
+    num_of_verticles = len(adjacency_matrix)
+    if num_of_verticles >= 3 and all([sum(vert) >= num_of_verticles/2 for vert in adjacency_matrix]):
+        return True
+    
+    return None
+
+
+def find_hamiltonian_cycle(adjacency_matrix):
+    adjacency_list = adjacency_matrix_to_adjacency_list(adjacency_matrix)
 
     path = [0]
     visited = set([0])
@@ -144,11 +164,10 @@ def find_hamiltonian_cycle():
     cycle = backtrack(start_vertex, adjacency_list, visited, path)
 
     if cycle is None:
-        print("Graph doesn't include hamitlon cycle")
         return None
 
     cycle.append(0)
-    print("Hamilton cycle: ", cycle)
+    return cycle
 
 
 def backtrack(vertex, adjacency_list, visited, path):
@@ -193,9 +212,10 @@ def __connected_component_recursive(nr, index, adjacency_matrix, comp):
 
 def connected_component(adjacency_matrix):
     nr = 0
-    comp = [-1 for row in adjacency_matrix]
+    num_of_verticles = len(adjacency_matrix)
+    comp = [-1] * num_of_verticles
 
-    for index, row in enumerate(adjacency_matrix):
+    for index in range(num_of_verticles):
         if comp[index] == -1:
             nr += 1
             comp[index] = nr
@@ -218,22 +238,17 @@ def largest_connected_component(adjacency_matrix):
     return largest_component_list
 
 
-def print_graph_from_adjacency_matrix(adjacency_matrix):
-    G = nx.from_numpy_array(np.array(adjacency_matrix))
-    nx.draw_circular(G, with_labels=True)
-    plt.axis('equal')
-    plt.show()
-
-
 def generate_random_regular_graph(n, k):
     if k > n:
         return None
     elif k % 2 == 1 and n % 2 == 1:
         return None
     else:
-        degrees = [k for node in range(n)]
+        degrees = [k] * n
         matrix = build_graph_from_degrees(np.array(degrees))
-        matrix = randomise_graph(matrix, 5)
+        while not is_graph_compact(connected_component(matrix)):
+            matrix = randomise_graph(matrix, 1)
+
         return matrix
 
 
@@ -242,7 +257,7 @@ if __name__ == '__main__':
     print('')
 
     if type == 1:
-        path = 'data/'
+        path = 'Lab02/data/'
         path += input(
             'Enter path to file containing graph data in form of list of degrees.\nPath: ')
         print('')
@@ -261,13 +276,28 @@ if __name__ == '__main__':
 
         draw_graph_with_subplots(adjacency_matrix, axies[0], 'Graph from data')
         draw_graph_with_subplots(rand_adjacency_matrix, axies[1], 'Randomise graph')
-
         plt.show()
 
     elif type == 2:
-        generate_euler_graph()
+        adjacency_matrix = generate_euler_graph()
+        print("Euler cycle for generated graph: ", fleury_algorithm(adjacency_matrix))
+        draw_graph(adjacency_matrix, 'Randomised euler graph')
+    
     elif type == 3:
-        find_hamiltonian_cycle()
+        adjacency_matrix = generate_graph(3, 6)
+        quick_check = is_graph_hamiltonian_quick_check(adjacency_matrix)
+        if quick_check != None:
+            print('Graph is hamiltonian: ', quick_check)
+        else:
+            cycle = find_hamiltonian_cycle(adjacency_matrix)
+            if cycle is not None:
+                print('Graph is hamiltonian: ', True)
+                print("Hamilton cycle: ", cycle)
+            else:
+                print('Graph is hamiltonian: ', False)
+
+        draw_graph(adjacency_matrix, 'Hamiltonian graph')
+
     else:
         print('Wrong option.')
 
