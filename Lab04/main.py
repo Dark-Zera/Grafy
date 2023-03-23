@@ -108,12 +108,59 @@ def generate_random_graph_nodes_probability(nodes, probability):
 	return np.array(adjacency_matrix)
 
 
+def __connected_component_recursive(nr, index, adjacency_matrix, comp, d, f, iteration):
+	neighbours = []
+	for ind, node in enumerate(adjacency_matrix[index]):
+		if node == 1:
+			neighbours.append(ind)
+	for node in neighbours:
+		if comp[node] == -1:
+			comp[node] = nr
+			d[node] = iteration[0]
+			iteration[0] += 1
+			__connected_component_recursive(nr, node, adjacency_matrix, comp, d, f, iteration)
+	f[index] = iteration[0]
+	iteration[0] += 1
 
 
+def connected_component(adjacency_matrix, search_list=None):
+	nr = 0
+	num_of_verticles = len(adjacency_matrix)
+	comp = [-1] * num_of_verticles
+	d = [-1] * num_of_verticles
+	f = [-1] * num_of_verticles
+	iteration = [1] # reference
+
+	node_list = list(range(num_of_verticles))
+	if search_list:
+		node_list = np.copy(search_list)
+
+	for index in node_list:
+		if comp[index] == -1:
+			nr += 1
+			comp[index] = nr
+			d[index] = iteration[0]
+			iteration[0] += 1
+			__connected_component_recursive(nr, index, adjacency_matrix, comp, d, f, iteration)
+
+	return comp, d, f
+
+
+def kosaraju_algorithm(adjacency_matrix):
+	tmp_matrix = np.copy(adjacency_matrix)
+	_, _, f = connected_component(tmp_matrix)
+	tmp_matrix = np.transpose(tmp_matrix)
+	search_list = zip(range(len(adjacency_matrix)), f)
+	search_list = sorted(search_list, key=lambda x: x[1], reverse=True)
+	search_list = list(map(lambda x: x[0], search_list))
+	#print(f)
+	#print(search_list)
+	conn2 = connected_component(tmp_matrix, search_list=search_list)
+	return conn2
 
 if __name__ == '__main__':
 
-	op = int(input("1. Provide graph from file\n2. Generate graph with n nodes and probability of p.\n"))
+	op = int(input("1. Provide graph from file\n2. Generate graph with n nodes and probability of p.\n3. Kosaraju algorithm\n"))
 	if op == 1:
 		path = "data/" + input("Please provide path to file\n")
 		type = int(input(
@@ -149,6 +196,18 @@ if __name__ == '__main__':
 
 		else:
 			print("Unknown number provided :(")
+
+		print("Adjacency matrix:")
+		for row in adjacency_matrix:
+			print(row)
+		print("Adjacency list:")
+		for row in adjacency_list:
+			print(row)
+		print("Incidence matrix:")
+		for row in incident_matrix:
+			print(row)
+		draw_digraph(adjacency_matrix)
+
 	elif op == 2:
 		fun = input("Insert number of nodes and probability of connection.\n").split(' ')
 		n = int(fun[0]) if len(fun) > 1 else 15
@@ -156,18 +215,27 @@ if __name__ == '__main__':
 		adjacency_matrix = generate_random_graph_nodes_probability(n, p)
 		adjacency_list = adjacency_matrix_to_adjacency_list(adjacency_matrix)
 		incident_matrix = adjacency_matrix_to_incidence_matrix(adjacency_matrix)
+		
+		print("Adjacency matrix:")
+		for row in adjacency_matrix:
+			print(row)
+		print("Adjacency list:")
+		for row in adjacency_list:
+			print(row)
+		print("Incidence matrix:")
+		for row in incident_matrix:
+			print(row)
+
+		draw_digraph(adjacency_matrix)
+
+	elif op == 3:
+		path = "data/adjacencyMatrix.txt"
+		adjacency_matrix = np.loadtxt(path).astype(int)
+		print("Adjacency matrix:")
+		for row in adjacency_matrix:
+			print(row)
+		
+		print("Kosaraju [#, d, f]: ", kosaraju_algorithm(adjacency_matrix))
 	else:
 		print("Wrong option selected.")
 
-
-	print("Adjacency matrix:")
-	for row in adjacency_matrix:
-		print(row)
-	print("Adjacency list:")
-	for row in adjacency_list:
-		print(row)
-	print("Incidence matrix:")
-	for row in incident_matrix:
-		print(row)
-
-	draw_digraph(adjacency_matrix)
