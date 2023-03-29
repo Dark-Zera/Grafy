@@ -72,7 +72,7 @@ def incidence_matrix_to_adjacency_matrix(incidence_matrix):
 	return np.array(adjacency_matrix)
 
 
-def draw_digraph(adjacency_matrix, title=''):
+def draw_digraph(adjacency_matrix, title='', weights=None):
 	_, ax = plt.subplots()
 	ax.axis('equal')
 	ax.set_title(title)
@@ -94,6 +94,20 @@ def draw_digraph(adjacency_matrix, title=''):
 	#nx.draw_networkx_edges(G, pos=nx.spring_layout(G), edge_color=c, arrows=True, arrowstyle='->')
 	#nx.draw_networkx_nodes(G, pos=nx.spring_layout(G))
 	nx.draw(G, pos=nx.fruchterman_reingold_layout(G), with_labels=True, ax=ax)
+	
+	if weights is not None:
+		weights_dict = dict()
+		num_of_verticles = len(adjacency_matrix)
+		k = 0
+		for i in range(num_of_verticles-1):
+			j = i + 1
+			while j < num_of_verticles:
+				if adjacency_matrix[i][j] == 1:
+					weights_dict.update({(i, j) : weights[k]})
+					k += 1
+				j += 1
+		
+		nx.draw_networkx_edge_labels(G, pos=nx.fruchterman_reingold_layout(G), edge_labels=weights_dict)
 	plt.show()
 
 
@@ -162,7 +176,7 @@ if __name__ == '__main__':
 
 	op = int(input("1. Provide graph from file\n2. Generate graph with n nodes and probability of p.\n3. Kosaraju algorithm\n"))
 	if op == 1:
-		path = "data/" + input("Please provide path to file\n")
+		path = "Lab04/data/" + input("Please provide path to file\n")
 		type = int(input(
 			"Please provide type number according to the type of data in file\n1 - Adjacency matrix\n2 - Adjacency list\n3 - Incident matrix\n"))
 
@@ -229,7 +243,7 @@ if __name__ == '__main__':
 		draw_digraph(adjacency_matrix)
 
 	elif op == 3:
-		path = "data/adjacencyMatrix.txt"
+		path = "Lab04/data/adjacencyMatrix.txt"
 		adjacency_matrix = np.loadtxt(path).astype(int)
 		print("Adjacency matrix:")
 		for row in adjacency_matrix:
