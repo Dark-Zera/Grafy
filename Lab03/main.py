@@ -3,6 +3,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import random
 
+from Lab01.main import adjacency_matrix_to_adjacency_list
 from Lab02.main import generate_graph, is_graph_compact, randomise_graph, connected_component
 
 
@@ -60,6 +61,48 @@ def dijkstra(adjacency_matrix, weights_list, root):
             if neigh not in vert_done:
                 relax(vert_data, weights_list[frozenset([min_v, neigh])], min_v, neigh)
     return vert_data
+
+
+def adjacency_matrix_with_weights(adjacency_matrix, edge_cost):
+    edgeCounter = 0
+    adjacency_matrix_with_weights = [[0 for i in adjacency_matrix] for j in adjacency_matrix]
+    for rowIndex, row in enumerate(adjacency_matrix):
+        for columnIndex, column in enumerate(row):
+            if column == 1 and edgeCounter < len(edge_cost) and columnIndex > rowIndex:
+                adjacency_matrix_with_weights[rowIndex][columnIndex] = edge_cost[edgeCounter]
+                adjacency_matrix_with_weights[columnIndex][rowIndex] = edge_cost[edgeCounter]
+                edgeCounter += 1
+
+    return adjacency_matrix_with_weights
+
+def prima(adjacency_matrix_with_weights):
+    INF = 9999999
+    # number of vertices in graph
+    N = 5
+    selected_node = [0 for i in range(N)]
+    no_edge = 0
+
+    selected_node[0] = True
+
+    # printing for edge and weight
+    print("Edge : Weight\n")
+    while (no_edge < N - 1):
+
+        minimum = INF
+        a = 0
+        b = 0
+        for m in range(N):
+            if selected_node[m]:
+                for n in range(N):
+                    if ((not selected_node[n]) and adjacency_matrix_with_weights[m][n]):
+                        # not in selected and there is an edge
+                        if minimum > adjacency_matrix_with_weights[m][n]:
+                            minimum = adjacency_matrix_with_weights[m][n]
+                            a = m
+                            b = n
+        print(str(a) + "-" + str(b) + ":" + str(adjacency_matrix_with_weights[a][b]))
+        selected_node[b] = True
+        no_edge += 1
 
 
 if __name__ == '__main__':
@@ -132,7 +175,15 @@ if __name__ == '__main__':
 
         draw_graph_with_costs(adjacency_matrix, edge_cost, title='Random graph with weigths')
 
+    # Ex. 5
     elif type == 3:
-        pass
+        adjacency_matrix = generate_graph(4, 10)
+        while not is_graph_compact(connected_component(adjacency_matrix)):
+            adjacency_matrix = randomise_graph(adjacency_matrix, 1)
+        num_of_edges = sum(sum(row) for row in adjacency_matrix) // 2
+        edge_cost = [random.randint(1, 10) for _ in range(num_of_edges)]
+        adjacencyMatrixWithWeights = adjacency_matrix_with_weights(adjacency_matrix, edge_cost)
+        draw_graph_with_costs(adjacency_matrix, edge_cost, title='Random graph with weigths')
+        prima(adjacencyMatrixWithWeights)
     else:
         print('Wrong option.')
