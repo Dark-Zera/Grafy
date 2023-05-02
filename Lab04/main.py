@@ -2,6 +2,7 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 import random
+from math import inf
 
 
 def adjacency_matrix_to_adjacency_list(matrix):
@@ -24,6 +25,7 @@ def adjacency_list_to_adjacency_matrix(adjacency_list):
 		index += 1
 
 	return adjacency_matrix
+
 
 # do poprawy
 def adjacency_matrix_to_incidence_matrix(adjacency_matrix):
@@ -172,9 +174,24 @@ def kosaraju_algorithm(adjacency_matrix):
 	conn2 = connected_component(tmp_matrix, search_list=search_list)
 	return conn2
 
+
+def bellman_ford(graph, start):
+	distances = {vertex: inf for vertex in graph}
+	distances[start] = 0
+
+	for _ in range(len(graph) - 1):
+		for vertex in graph:
+			for neighbor, weight in graph[vertex].items():
+				if distances[vertex] + weight < distances[neighbor]:
+					distances[neighbor] = distances[vertex] + weight
+
+	return distances
+
+
 if __name__ == '__main__':
 
-	op = int(input("1. Provide graph from file\n2. Generate graph with n nodes and probability of p.\n3. Kosaraju algorithm\n"))
+	op = 4
+	# op = int(input("1. Provide graph from file\n2. Generate graph with n nodes and probability of p.\n3. Kosaraju algorithm\n4. Bellman-Ford algorithm\n"))
 	if op == 1:
 		path = "Lab04/data/" + input("Please provide path to file\n")
 		type = int(input(
@@ -250,6 +267,16 @@ if __name__ == '__main__':
 			print(row)
 		
 		print("Kosaraju [#, d, f]: ", kosaraju_algorithm(adjacency_matrix))
+	elif op == 4:
+		adjacency_matrix = generate_random_graph_nodes_probability(15, 0.3)
+		adjacency_list = adjacency_matrix_to_adjacency_list(adjacency_matrix)
+		graph = {}
+
+		for vertex, neighbors in enumerate(adjacency_list):
+			graph[vertex] = {}
+			for neighbor in neighbors:
+				graph[vertex][neighbor] = random.randint(-5, 10)
+
+		print(bellman_ford(graph, 10))
 	else:
 		print("Wrong option selected.")
-
