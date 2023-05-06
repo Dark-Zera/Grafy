@@ -87,12 +87,20 @@ def generate_random_graph_nodes_lines(nodes, lines):
     incident_matrix = [[0 for i in range(lines)] for j in range(nodes)]
 
     for column in range(lines):
-        selectedNodes = random.choices(range(nodes), k=2)
-        incident_matrix[selectedNodes[0]][column] = 1
-        incident_matrix[selectedNodes[1]][column] = 1
+        nodes_already_selected = True
+        while nodes_already_selected:
+            selected_nodes = random.sample(range(nodes), k=2)
+            for already_selected_nodes in range(column + 1):
+                if incident_matrix[selected_nodes[0]][already_selected_nodes] == 1 and incident_matrix[selected_nodes[1]][already_selected_nodes] == 1:
+                    nodes_already_selected = True
+                    break
+            else:
+                nodes_already_selected = False
+
+        incident_matrix[selected_nodes[0]][column] = 1
+        incident_matrix[selected_nodes[1]][column] = 1
 
     return incidence_matrix_to_adjacency_matrix(np.array(incident_matrix))
-
 
 def generate_random_graph_nodes_probability(nodes, probability):
     adjacency_matrix = [[0 for i in range(nodes)] for j in range(nodes)]
@@ -103,9 +111,6 @@ def generate_random_graph_nodes_probability(nodes, probability):
                 adjacency_matrix[column][row] = 1
 
     return np.array(adjacency_matrix)
-
-
-
 
 
 if __name__ == '__main__':
@@ -147,7 +152,7 @@ if __name__ == '__main__':
         else:
             print("Unknown number provided :(")
     elif op == 2:
-        fun = input("1. Generate graph with n nodes and k connections.\n2. Generate graph with n nodes and probability of p.\n").split(' ')
+        fun = input("1. Generate graph with n nodes and k connections.\n2. Generate graph with n nodes and probability of p.\n(First value - option, Second and third value - function arguments (optional)\n ").split(' ')
         if int(fun[0]) == 1:
             n = int(fun[1]) if len(fun) > 1 else 15
             k = int(fun[2]) if len(fun) > 2 else 10
