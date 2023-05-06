@@ -53,13 +53,13 @@ def dijkstra(adjacency_matrix, weights_list, root):
     vert_done = []
 
     while len(vert_done) < len(vert_data):
-        min_v = min(list(filter(lambda x: x[0] not in vert_done, vert_data.items())), key=lambda x: x[1][0])[0]
-        vert_done.append(min_v)        
-        neighbourhood = [i for i, v in enumerate(adjacency_matrix[min_v]) if v == 1]
+        u = min(list(filter(lambda x: x[0] not in vert_done, vert_data.items())), key=lambda x: x[1][0])[0]
+        vert_done.append(u)        
+        neighbourhood = [i for i, v in enumerate(adjacency_matrix[u]) if v == 1]
         
         for neigh in neighbourhood:
             if neigh not in vert_done:
-                relax(vert_data, weights_list[frozenset([min_v, neigh])], min_v, neigh)
+                relax(vert_data, weights_list[frozenset([u, neigh])], u, neigh)
     return vert_data
 
 
@@ -129,6 +129,7 @@ if __name__ == '__main__':
         edge_cost = [random.randint(1, 10) for _ in range(num_of_edges)]
         costs_dict = dict()
         num_of_verticles = len(adjacency_matrix)
+        max_index = num_of_verticles-1
         k = 0
 
         for i in range(num_of_verticles-1):
@@ -139,32 +140,29 @@ if __name__ == '__main__':
                     k += 1
                 j += 1
         
-        for i in range(num_of_verticles):
+        for i in range(max_index+1):
             d = dijkstra(adjacency_matrix, costs_dict, i)
             for j in d.items():
-                tmp = [ j[0] ]
-                x = j[1][1]
-                while x != None:
-                    tmp.append(x)
-                    x = d[x][1]
-                tmp = tmp[::-1]
-                print(f'{i}->{j[0]}: ', tmp)
+                path = [ j[0] ]
+                next_hop = j[1][1]
+                while next_hop != None:
+                    path.append(next_hop)
+                    next_hop = d[next_hop][1]
+                path = path[::-1]
+                print(f'{i}->{j[0]}: ', path)
 
         # Ex. 3
         matrix = []
-        for i in range(num_of_verticles):
+        print(costs_dict)
+        for i in range(max_index+1):
             d = dijkstra(adjacency_matrix, costs_dict, i)
             tmp = []
+            print(d.items())
             for j in d.items():
-                x = j[1][1]
-                node_sum = j[1][0]
-                while x != None:
-                    node_sum += d[x][0]
-                    x = d[x][1]
-                tmp.append(node_sum)
-            tmp = tmp[::-1]
+                path_sum = j[1][0]
+                tmp.append(path_sum)
             matrix.append(tmp)
-        matrix = np.array(matrix[::-1])
+        matrix = np.array(matrix)
         print(matrix)
 
         # Ex. 4
