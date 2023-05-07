@@ -174,6 +174,9 @@ def backtrack(vertex, adjacency_list, visited, path):
     if len(visited) == len(adjacency_list) and vertex in adjacency_list[0]:
         return path
 
+    if vertex >= len(adjacency_list):
+        vertex = len(adjacency_list) - 1
+
     for neighbor in adjacency_list[vertex]:
         if neighbor not in visited:
             visited.add(neighbor)
