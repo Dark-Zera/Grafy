@@ -78,7 +78,7 @@ def adjacency_matrix_with_weights(adjacency_matrix, edge_cost):
 def prima(adjacency_matrix_with_weights):
     INF = 9999999
     # number of vertices in graph
-    N = 5
+    N = len(adjacency_matrix_with_weights)
     selected_node = [0 for i in range(N)]
     no_edge = 0
 
@@ -106,7 +106,7 @@ def prima(adjacency_matrix_with_weights):
 
 
 if __name__ == '__main__':
-    type = int(input('1.Random graph with costs\n2.Dijkstra alghoritm \n3. \nOption: '))
+    type = int(input('1.Random graph with costs\n2.Dijkstra algorithm \n3. Minimal spanning tree\nOption: '))
     print('')
 
     if type == 1:
@@ -121,7 +121,7 @@ if __name__ == '__main__':
         draw_graph_with_costs(adjacency_matrix, edge_cost, title='Random graph with weigths')
 
     elif type == 2:
-        adjacency_matrix = generate_graph(4, 10)
+        adjacency_matrix = generate_graph(4, 5)
         while not is_graph_compact(connected_component(adjacency_matrix)):
             adjacency_matrix = randomise_graph(adjacency_matrix, 1)
         num_of_edges = sum(sum(row) for row in adjacency_matrix) // 2
@@ -175,7 +175,7 @@ if __name__ == '__main__':
 
     # Ex. 5
     elif type == 3:
-        adjacency_matrix = generate_graph(4, 10)
+        adjacency_matrix = generate_graph(8, 8)
         while not is_graph_compact(connected_component(adjacency_matrix)):
             adjacency_matrix = randomise_graph(adjacency_matrix, 1)
         num_of_edges = sum(sum(row) for row in adjacency_matrix) // 2
