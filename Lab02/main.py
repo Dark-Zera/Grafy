@@ -1,3 +1,4 @@
+import numpy
 import pandas as pd
 import numpy as np
 import networkx as nx
@@ -256,11 +257,11 @@ def generate_random_regular_graph(n, k):
 
 
 if __name__ == '__main__':
-    type = int(input('1. Graph based on degrees\n2. Euler\n3. Hamilton\nOption: '))
+    option = int(input('1. Graph based on degrees\n2. Euler\n3. k-regular graph\n4. Hamilton\nOption: '))
     print('')
 
-    if type == 1:
-        path = 'Lab02/data/'
+    if option == 1:
+        path = 'data/'
         path += input(
             'Enter path to file containing graph data in form of list of degrees.\nPath: ')
         print('')
@@ -281,12 +282,21 @@ if __name__ == '__main__':
         draw_graph_with_subplots(rand_adjacency_matrix, axies[1], 'Randomise graph')
         plt.show()
 
-    elif type == 2:
+    elif option == 2:
         adjacency_matrix = generate_euler_graph()
         print("Euler cycle for generated graph: ", fleury_algorithm(adjacency_matrix))
         draw_graph(adjacency_matrix, 'Randomised euler graph')
-    
-    elif type == 3:
+
+    elif option == 3:
+        fun = input("Enter two values, first - number of nodes, second - degree\n").split(' ')
+        adjacency_matrix = generate_random_regular_graph(int(fun[0]), int(fun[1]))
+        # print(type(adjacency_matrix))
+        if type(adjacency_matrix) is numpy.ndarray:
+            draw_graph(adjacency_matrix, 'Hamiltonian graph')
+        else:
+            print("Cannot create k-regular graph with those parameters")
+
+    elif option == 4:
         adjacency_matrix = generate_graph(3, 6)
         quick_check = is_graph_hamiltonian_quick_check(adjacency_matrix)
         if quick_check != None:
