@@ -158,6 +158,9 @@ def is_graph_hamiltonian_quick_check(adjacency_matrix):
 
 def find_hamiltonian_cycle(adjacency_matrix):
     adjacency_list = adjacency_matrix_to_adjacency_list(adjacency_matrix)
+    for i in range(len(adjacency_list)):
+        for j in range(len(adjacency_list[i])):
+            adjacency_list[i][j] -= 1
 
     path = [0]
     visited = set([0])
@@ -299,7 +302,7 @@ if __name__ == '__main__':
     elif option == 4:
         adjacency_matrix = generate_graph(3, 6)
         quick_check = is_graph_hamiltonian_quick_check(adjacency_matrix)
-        if quick_check != None:
+        if quick_check == False:
             print('Graph is hamiltonian: ', quick_check)
         else:
             cycle = find_hamiltonian_cycle(adjacency_matrix)

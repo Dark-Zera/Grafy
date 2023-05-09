@@ -3,7 +3,6 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import random
 
-from Lab01.main import adjacency_matrix_to_adjacency_list
 from Lab02.main import generate_graph, is_graph_compact, randomise_graph, connected_component
 
 

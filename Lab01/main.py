@@ -102,6 +102,7 @@ def generate_random_graph_nodes_lines(nodes, lines):
 
     return incidence_matrix_to_adjacency_matrix(np.array(incident_matrix))
 
+
 def generate_random_graph_nodes_probability(nodes, probability):
     adjacency_matrix = [[0 for i in range(nodes)] for j in range(nodes)]
     for row in range(nodes):
