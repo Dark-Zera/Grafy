@@ -1,7 +1,11 @@
 import numpy as np
 import random as rd
 import copy
+import matplotlib.pyplot as plt
 from string import ascii_lowercase
+from numba import jit
+
+from Lab01.main import generate_random_graph_nodes_lines, draw_graph
 from Lab04.main import adjacency_matrix_to_adjacency_list, adjacency_list_to_adjacency_matrix
 from Lab02.main import generate_random_regular_graph
 
@@ -68,30 +72,69 @@ def print_pg_sorted(pg_in_order):
 	for k, v in pg_in_order.items():
 		print(f'{k} ==> PageRank = {v}')
 
-
-def simulated_annealing(adjacency_list):
-	# wyznacz dowolny cykl startowy P
-	P = []
-	P_new = []
-	d = lambda x: x # uzupelnic
-
-	max_iter = 10000
+@jit(nopython=True)
+def simulated_annealing(P):
+	max_iter = 30000
 	for i in range(100, 0, -1):
 		T = 0.001 * i**2
 		for it in range(max_iter):
-			# wylosuj ab cd z P
-			# nowy cykl P
-			# zamiana ab i cd
-			if d(P_new) < d(P):
+			[a_index, b_index, c_index, d_index] = np.random.choice(len(P), 4, False)
+			a = P[a_index].copy()
+			b = P[b_index].copy()
+			c = P[c_index].copy()
+			d = P[d_index].copy()
+
+			new_cycle = P.copy()
+
+			b[0] = c_index
+			c[0] = b_index
+			new_cycle[b_index] = c.copy()
+			new_cycle[c_index] = b.copy()
+
+			P_new = new_cycle.copy()
+
+			old_cost = 0
+			for index, node in enumerate(P):
+				if index + 1 < len(P):
+					old_cost += abs(P[index + 1][1] - P[index][1])
+					old_cost += abs(P[index + 1][2] - P[index][2])
+				else:
+					old_cost += abs(P[0][1] - P[index][1])
+					old_cost += abs(P[0][2] - P[index][2])
+
+			new_cost = 0
+			for index, node in enumerate(P_new):
+				if index + 1 < len(P_new):
+					new_cost += abs(P_new[index + 1][1] - P_new[index][1])
+					new_cost += abs(P_new[index + 1][2] - P_new[index][2])
+				else:
+					new_cost += abs(P_new[0][1] - P_new[index][1])
+					new_cost += abs(P_new[0][2] - P_new[index][2])
+
+			if new_cost < old_cost:
 				P = P_new.copy()
 			else:
 				r = rd.random()
-				if r < np.exp(-(d(P_new) - d(P))/T):
+				if r < np.e**(-(new_cost - old_cost)/T):
 					P = P_new.copy()
 	return P
 
+def draw_chess_board(cycle):
+	x = [node[1] for node in cycle]
+	y = [node[2] for node in cycle]
+	last_connection_x = [x[0], x[-1]]
+	last_connection_y = [y[0], y[-1]]
+
+	plt.scatter(x, y)
+	plt.plot(x, y, 'b-')
+	plt.plot(last_connection_x, last_connection_y, 'b-')
+
+	plt.xlabel("x")
+	plt.ylabel("y")
+	plt.show()
+
 if __name__ == '__main__':
-	op = int(input("1. Provide graph from file\n2. Generate random graph\n3. Annealing\n"))
+	op = int(input("1. Provide graph from file\n2. Annealing\n"))
 	adjacency_list = []
 	adjacency_matrix = []
 
@@ -103,19 +146,17 @@ if __name__ == '__main__':
 				adjacency_list.append(list(map(int, line.strip().split())))
 			adjacency_list = np.array(adjacency_list, dtype=object)
 			#adjacency_matrix = adjacency_list_to_adjacency_matrix([[i+1 for i in l] for l in adjacency_list])
-	
-	# Niepotrzebne
+
 	elif op == 2:
-		n = 10
-		k = 4
-		adjacency_matrix = np.array(generate_random_regular_graph(n, k))
-		adjacency_list = np.array(adjacency_matrix_to_adjacency_list(adjacency_matrix)) - 1
-	
-	elif op == 3:
-		pass
-	
-	pr_result = random_page_rank(adjacency_list)
-	print_pg_sorted(pr_result)
-	print('=====================================')
-	pr_result, _ = page_rank(adjacency_list)
-	print_pg_sorted(pr_result)
+		node_list = []
+		with open("data/input_150.txt") as file:
+			lines = file.readlines()
+			for index, line in enumerate(lines):
+				position = [float(i) for i in line.split(" ")]
+				node_list.append([index, position[0], position[1]])
+
+		P = np.array([np.array([index, node_list[index][1], node_list[index][2]]) for index in range(len(node_list))])
+
+		result_cycle = simulated_annealing(P)
+
+		draw_chess_board(result_cycle)
