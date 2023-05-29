@@ -5,11 +5,26 @@ import matplotlib.pyplot as plt
 from string import ascii_lowercase
 from numba import jit
 
-from Lab01.main import generate_random_graph_nodes_lines, draw_graph
-from Lab04.main import adjacency_matrix_to_adjacency_list, adjacency_list_to_adjacency_matrix
-from Lab02.main import generate_random_regular_graph
+def adjacency_matrix_to_adjacency_list(matrix):
+    adjacency_list = []
+    for row in matrix:
+        adjacency_list.append([])
+        for i in range(len(row)):
+            if row[i] == 1:
+                adjacency_list[-1].append(i + 1)
 
-# adjacency_list - [0, max-1]
+    return adjacency_list
+
+
+def adjacency_list_to_adjacency_matrix(adjacency_list):
+    adjacency_matrix = np.zeros((len(adjacency_list), len(adjacency_list)), dtype=int)
+    index = 0
+    for row in adjacency_list:
+        for column in row:
+            adjacency_matrix[index][column - 1] = 1
+        index += 1
+
+    return adjacency_matrix
 
 def page_rank(adjacency_list):
 	adjacency_matrix = adjacency_list_to_adjacency_matrix([[i+1 for i in l] for l in adjacency_list])
@@ -90,7 +105,6 @@ def simulated_annealing(P):
 			c[0] = b_index
 			new_cycle[b_index] = c.copy()
 			new_cycle[c_index] = b.copy()
-
 			P_new = new_cycle.copy()
 
 			old_cost = 0
@@ -117,6 +131,9 @@ def simulated_annealing(P):
 				r = rd.random()
 				if r < np.e**(-(new_cost - old_cost)/T):
 					P = P_new.copy()
+
+			if it == 30000 - 1 and i == 1:
+				print("ostateczny koszt:", old_cost)
 	return P
 
 def draw_chess_board(cycle):
@@ -139,13 +156,19 @@ if __name__ == '__main__':
 	adjacency_matrix = []
 
 	if op == 1:
-		path = "Lab06/data/" + input("Please provide path to file\n")
+		path = "data/" + input("Please provide path to file\n")
 		with open(path, 'r') as f:
 			data = f.readlines()
 			for line in data:
 				adjacency_list.append(list(map(int, line.strip().split())))
 			adjacency_list = np.array(adjacency_list, dtype=object)
 			#adjacency_matrix = adjacency_list_to_adjacency_matrix([[i+1 for i in l] for l in adjacency_list])
+
+		pr_result = random_page_rank(adjacency_list)
+		print_pg_sorted(pr_result)
+		print('=====================================')
+		pr_result, _ = page_rank(adjacency_list)
+		print_pg_sorted(pr_result)
 
 	elif op == 2:
 		node_list = []

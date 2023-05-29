@@ -288,7 +288,7 @@ if __name__ == '__main__':
         "4. Bellman-Ford algorithm\n"
         "5. Johnson algorithm\n"))
     if op == 1:
-        path = "Lab04/data/" + input("Please provide path to file\n")
+        path = "data/" + input("Please provide path to file\n")
         type = int(input(
             "Please provide type number according to the type of data in file\n1 - Adjacency matrix\n2 - Adjacency list\n3 - Incident matrix\n"))
 
@@ -355,21 +355,27 @@ if __name__ == '__main__':
         draw_digraph(adjacency_matrix)
 
     elif op == 3:
-        path = "Lab04/data/adjacencyMatrix.txt"
+        path = "data/adjacencyMatrix.txt"
         adjacency_matrix = np.loadtxt(path).astype(int)
+        # adjacency_matrix = generate_random_graph(7, 0.4)
         print("Adjacency matrix:")
         for row in adjacency_matrix:
             print(row)
 
         print("Kosaraju [#, d, f]: ", kosaraju_algorithm(adjacency_matrix))
+        draw_digraph(adjacency_matrix)
     elif op == 4:
         start = int(input("Provide starting node.\n"))
-        graph = generate_random_graph(10, 0.5)
+        graph = generate_random_graph(5, 0.6)
+        for index, i in enumerate(graph):
+            print("wierzchołek", index, ":", i)
 
         print(bellman_ford(graph, start))
         draw_graph_v2(graph)
     elif op == 5:
-        graph = generate_random_graph(10, 0.5)
+        graph = generate_random_graph(5, 0.5)
+        for index, i in enumerate(graph):
+            print("wierzchołek", index, ":", i)
 
         for row in johnson(graph):
             for value in row:

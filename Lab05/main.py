@@ -107,8 +107,12 @@ def ford_fulkerson(graph, source, target):
     return max_flow
 
 
-N = 4
+N = 3
 flow_network = generate_random_flow_network(N)
+# Dopisz wypisywanie sieci, oraz wyjscia
+# for i in flow_network:
+#     print(i["capacity"])
+
 max_flow = ford_fulkerson(flow_network, 'source', 'target')
 print("Maksymalny przepływ:", max_flow)
 

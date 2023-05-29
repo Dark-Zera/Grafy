@@ -5,7 +5,25 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import random
 
-from Lab01.main import draw_graph, adjacency_matrix_to_adjacency_list
+def draw_graph(adjacency_matrix, title=''):
+    _, ax = plt.subplots()
+    circle = plt.Circle((0, 0), 1, fill=False, color='r', linestyle='--', linewidth=2, alpha=0.5)
+    ax.add_patch(circle)
+    ax.axis('equal')
+    ax.set_title(title)
+    G = nx.from_numpy_array(adjacency_matrix)
+    nx.draw_circular(G, with_labels=True, ax=ax)
+    plt.show()
+
+def adjacency_matrix_to_adjacency_list(matrix):
+    adjacency_list = []
+    for row in matrix:
+        adjacency_list.append([])
+        for i in range(len(row)):
+            if row[i] == 1:
+                adjacency_list[-1].append(i+1)
+
+    return adjacency_list
 
 
 def is_seq_graphical(seq):
@@ -276,7 +294,7 @@ if __name__ == '__main__':
             quit()
 
         adjacency_matrix = build_graph_from_degrees(degrees_data)
-        rand_adjacency_matrix = randomise_graph(adjacency_matrix, 10)
+        rand_adjacency_matrix = randomise_graph(adjacency_matrix, 100)
         print('Largest connected component list: ', largest_connected_component(adjacency_matrix))
 
         _, axies = plt.subplots(1, 2)
@@ -300,7 +318,7 @@ if __name__ == '__main__':
             print("Cannot create k-regular graph with those parameters")
 
     elif option == 4:
-        adjacency_matrix = generate_graph(3, 6)
+        adjacency_matrix = generate_graph(8, 8)
         quick_check = is_graph_hamiltonian_quick_check(adjacency_matrix)
         if quick_check == False:
             print('Graph is hamiltonian: ', quick_check)

@@ -3,7 +3,111 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import random
 
-from Lab02.main import generate_graph, is_graph_compact, randomise_graph, connected_component
+def is_seq_graphical(seq):
+    seq = np.sort(seq.flatten())
+    seq = seq[::-1]
+
+    if np.take(seq, 0) > seq.size or np.sum(seq) % 2:
+        return False
+
+    while True:
+        max_value = np.take(seq, 0)
+
+        if np.take(seq, -1) < 0:
+            return False
+        elif max_value == 0:
+            return True
+
+        for i in range(1, max_value + 1):
+            seq[i] -= 1
+
+        seq.itemset(0, 0)
+        seq = np.sort(seq)
+        seq = seq[::-1]
+
+
+def build_graph_from_degrees(seq):
+    seq = np.sort(seq.flatten())
+    seq = seq[::-1]
+    degrees = dict(enumerate(seq))
+    num_of_verticles = seq.size
+    adjacency_matrix = np.zeros((num_of_verticles, num_of_verticles), dtype=int)
+
+    for _ in range(num_of_verticles):
+        keys = list(degrees.keys())
+        curr_ver = keys[0]
+        num_of_edges = degrees[curr_ver]
+        degrees[curr_ver] = 0
+        for i in range(1, num_of_edges + 1):
+            degrees[keys[i]] -= 1
+            adjacency_matrix.itemset((curr_ver, keys[i]), 1)
+            adjacency_matrix.itemset((keys[i], curr_ver), 1)
+
+        degrees = dict(sorted(degrees.items(), key=lambda item: item[1], reverse=True))
+
+    return adjacency_matrix
+
+def generate_graph(min_vert, max_vert):
+    nodes = random.randint(min_vert, max_vert)
+    degrees = np.array([random.randint(2, nodes-1) for _ in range(nodes)])
+    while not is_seq_graphical(degrees):
+        degrees = np.array([random.randint(1, nodes-1) for _ in range(nodes)])
+    adjacency_matrix = build_graph_from_degrees(degrees)
+
+    return adjacency_matrix
+
+def is_graph_compact(component_list):
+    num_of_comp = np.unique(component_list).size
+    if num_of_comp == 1:
+        return True
+    return False
+
+def randomise_graph(graph, repeat):
+    rand_graph = np.copy(graph)
+    while repeat:
+        edges = np.where(rand_graph == 1)
+        t_edges = list(zip(edges[0], edges[1]))
+
+        e1, e2 = random.sample(t_edges, 2)
+        new_e1, new_e2 = (e1[0], e2[1]), (e2[0], e1[1])
+
+        if new_e1[0] == new_e1[1] or new_e2[0] == new_e2[1]:
+            continue
+        if (new_e1 not in t_edges) and (new_e2 not in t_edges):
+            rand_graph.itemset((e1[0], e1[1]), 0)
+            rand_graph.itemset((e2[0], e2[1]), 0)
+            rand_graph.itemset((e1[1], e1[0]), 0)
+            rand_graph.itemset((e2[1], e2[0]), 0)
+            rand_graph.itemset((new_e1[0], new_e1[1]), 1)
+            rand_graph.itemset((new_e2[0], new_e2[1]), 1)
+            rand_graph.itemset((new_e1[1], new_e1[0]), 1)
+            rand_graph.itemset((new_e2[1], new_e2[0]), 1)
+            repeat -= 1
+    return rand_graph
+
+def connected_component(adjacency_matrix):
+    nr = 0
+    num_of_verticles = len(adjacency_matrix)
+    comp = [-1] * num_of_verticles
+
+    for index in range(num_of_verticles):
+        if comp[index] == -1:
+            nr += 1
+            comp[index] = nr
+            __connected_component_recursive(nr, index, adjacency_matrix, comp)
+
+    return comp
+
+def __connected_component_recursive(nr, index, adjacency_matrix, comp):
+    neighbours = []
+    for index, node in enumerate(adjacency_matrix[index]):
+        if node == 1:
+            neighbours.append(index)
+
+    for node in neighbours:
+        if comp[node] == -1:
+            comp[node] = nr
+            __connected_component_recursive(nr, node, adjacency_matrix, comp)
 
 
 def draw_graph_with_costs(adjacency_matrix, costs, title=''):
@@ -120,7 +224,7 @@ if __name__ == '__main__':
         draw_graph_with_costs(adjacency_matrix, edge_cost, title='Random graph with weigths')
 
     elif type == 2:
-        adjacency_matrix = generate_graph(4, 5)
+        adjacency_matrix = generate_graph(8, 8)
         while not is_graph_compact(connected_component(adjacency_matrix)):
             adjacency_matrix = randomise_graph(adjacency_matrix, 1)
         num_of_edges = sum(sum(row) for row in adjacency_matrix) // 2
@@ -180,7 +284,8 @@ if __name__ == '__main__':
         num_of_edges = sum(sum(row) for row in adjacency_matrix) // 2
         edge_cost = [random.randint(1, 10) for _ in range(num_of_edges)]
         adjacencyMatrixWithWeights = adjacency_matrix_with_weights(adjacency_matrix, edge_cost)
-        draw_graph_with_costs(adjacency_matrix, edge_cost, title='Random graph with weigths')
         prima(adjacencyMatrixWithWeights)
+        draw_graph_with_costs(adjacency_matrix, edge_cost, title='Random graph with weigths')
+
     else:
         print('Wrong option.')
