@@ -109,11 +109,15 @@ def ford_fulkerson(graph, source, target):
 
 N = 3
 flow_network = generate_random_flow_network(N)
-# Dopisz wypisywanie sieci, oraz wyjscia
-# for i in flow_network:
-#     print(i["capacity"])
+print('\nInitial capacity:')
+for u, v in flow_network.edges:
+    print('From ', u, ' to ', v, ' capacity is: ', flow_network[u][v]["capacity"])
 
 max_flow = ford_fulkerson(flow_network, 'source', 'target')
-print("Maksymalny przepływ:", max_flow)
+
+print('\nFinal flow: ')
+for u, v in flow_network.edges:
+    print('From ', u, ' to ', v, ' flow is: ', flow_network[u][v]["flow"])
+print("\nMax flow:", max_flow)
 
 draw_flow_network(flow_network, True)

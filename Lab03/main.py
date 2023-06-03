@@ -3,6 +3,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import random
 
+
 def is_seq_graphical(seq):
     seq = np.sort(seq.flatten())
     seq = seq[::-1]
@@ -47,20 +48,23 @@ def build_graph_from_degrees(seq):
 
     return adjacency_matrix
 
+
 def generate_graph(min_vert, max_vert):
     nodes = random.randint(min_vert, max_vert)
-    degrees = np.array([random.randint(2, nodes-1) for _ in range(nodes)])
+    degrees = np.array([random.randint(2, nodes - 1) for _ in range(nodes)])
     while not is_seq_graphical(degrees):
-        degrees = np.array([random.randint(1, nodes-1) for _ in range(nodes)])
+        degrees = np.array([random.randint(1, nodes - 1) for _ in range(nodes)])
     adjacency_matrix = build_graph_from_degrees(degrees)
 
     return adjacency_matrix
+
 
 def is_graph_compact(component_list):
     num_of_comp = np.unique(component_list).size
     if num_of_comp == 1:
         return True
     return False
+
 
 def randomise_graph(graph, repeat):
     rand_graph = np.copy(graph)
@@ -85,6 +89,7 @@ def randomise_graph(graph, repeat):
             repeat -= 1
     return rand_graph
 
+
 def connected_component(adjacency_matrix):
     nr = 0
     num_of_verticles = len(adjacency_matrix)
@@ -97,6 +102,7 @@ def connected_component(adjacency_matrix):
             __connected_component_recursive(nr, index, adjacency_matrix, comp)
 
     return comp
+
 
 def __connected_component_recursive(nr, index, adjacency_matrix, comp):
     neighbours = []
@@ -118,16 +124,16 @@ def draw_graph_with_costs(adjacency_matrix, costs, title=''):
     ax.set_title(title)
     G = nx.from_numpy_array(adjacency_matrix)
     nx.draw_circular(G, with_labels=True, ax=ax)
-    
+
     costs_dict = dict()
 
     num_of_verticles = len(adjacency_matrix)
     k = 0
-    for i in range(num_of_verticles-1):
+    for i in range(num_of_verticles - 1):
         j = i + 1
         while j < num_of_verticles:
             if adjacency_matrix[i][j] == 1:
-                costs_dict.update({(i, j) : costs[k]})
+                costs_dict.update({(i, j): costs[k]})
                 k += 1
             j += 1
 
@@ -140,7 +146,7 @@ def draw_graph_with_costs(adjacency_matrix, costs, title=''):
 
 def init(graph, root):
     num_of_verticles = len(graph)
-    vert_data = dict({i : (float('inf'), None)  for i in range(num_of_verticles)})
+    vert_data = dict({i: (float('inf'), None) for i in range(num_of_verticles)})
     vert_data[root] = (0, None)
 
     return vert_data
@@ -157,9 +163,9 @@ def dijkstra(adjacency_matrix, weights_list, root):
 
     while len(vert_done) < len(vert_data):
         u = min(list(filter(lambda x: x[0] not in vert_done, vert_data.items())), key=lambda x: x[1][0])[0]
-        vert_done.append(u)        
+        vert_done.append(u)
         neighbourhood = [i for i, v in enumerate(adjacency_matrix[u]) if v == 1]
-        
+
         for neigh in neighbourhood:
             if neigh not in vert_done:
                 relax(vert_data, weights_list[frozenset([u, neigh])], u, neigh)
@@ -168,7 +174,7 @@ def dijkstra(adjacency_matrix, weights_list, root):
 
 def adjacency_matrix_with_weights(adjacency_matrix, edge_cost):
     edgeCounter = 0
-    adjacency_matrix_with_weights = [[0 for i in adjacency_matrix] for j in adjacency_matrix]
+    adjacency_matrix_with_weights = [[0 for _ in adjacency_matrix] for _ in adjacency_matrix]
     for rowIndex, row in enumerate(adjacency_matrix):
         for columnIndex, column in enumerate(row):
             if column == 1 and edgeCounter < len(edge_cost) and columnIndex > rowIndex:
@@ -177,6 +183,7 @@ def adjacency_matrix_with_weights(adjacency_matrix, edge_cost):
                 edgeCounter += 1
 
     return adjacency_matrix_with_weights
+
 
 def prima(adjacency_matrix_with_weights):
     INF = 9999999
@@ -189,7 +196,7 @@ def prima(adjacency_matrix_with_weights):
 
     # printing for edge and weight
     print("Edge : Weight\n")
-    while (no_edge < N - 1):
+    while no_edge < N - 1:
 
         minimum = INF
         a = 0
@@ -197,7 +204,7 @@ def prima(adjacency_matrix_with_weights):
         for m in range(N):
             if selected_node[m]:
                 for n in range(N):
-                    if ((not selected_node[n]) and adjacency_matrix_with_weights[m][n]):
+                    if (not selected_node[n]) and adjacency_matrix_with_weights[m][n]:
                         # not in selected and there is an edge
                         if minimum > adjacency_matrix_with_weights[m][n]:
                             minimum = adjacency_matrix_with_weights[m][n]
@@ -232,21 +239,21 @@ if __name__ == '__main__':
         edge_cost = [random.randint(1, 10) for _ in range(num_of_edges)]
         costs_dict = dict()
         num_of_verticles = len(adjacency_matrix)
-        max_index = num_of_verticles-1
+        max_index = num_of_verticles - 1
         k = 0
 
-        for i in range(num_of_verticles-1):
+        for i in range(num_of_verticles - 1):
             j = i + 1
             while j < num_of_verticles:
                 if adjacency_matrix[i][j] == 1:
-                    costs_dict.update({frozenset([i, j]) : edge_cost[k]})
+                    costs_dict.update({frozenset([i, j]): edge_cost[k]})
                     k += 1
                 j += 1
-        
-        for i in range(max_index+1):
+
+        for i in range(max_index + 1):
             d = dijkstra(adjacency_matrix, costs_dict, i)
             for j in d.items():
-                path = [ j[0] ]
+                path = [j[0]]
                 next_hop = j[1][1]
                 while next_hop != None:
                     path.append(next_hop)
@@ -257,7 +264,7 @@ if __name__ == '__main__':
         # Ex. 3
         matrix = []
         print(costs_dict)
-        for i in range(max_index+1):
+        for i in range(max_index + 1):
             d = dijkstra(adjacency_matrix, costs_dict, i)
             tmp = []
             print(d.items())

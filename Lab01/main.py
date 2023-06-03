@@ -10,7 +10,7 @@ def adjacency_matrix_to_adjacency_list(matrix):
         adjacency_list.append([])
         for i in range(len(row)):
             if row[i] == 1:
-                adjacency_list[-1].append(i+1)
+                adjacency_list[-1].append(i + 1)
 
     return adjacency_list
 
@@ -20,7 +20,7 @@ def adjacency_list_to_adjacency_matrix(adjacency_list):
     index = 0
     for row in adjacency_list:
         for column in row:
-            adjacency_matrix[index][column-1] = 1
+            adjacency_matrix[index][column - 1] = 1
         index += 1
 
     return adjacency_matrix
@@ -84,6 +84,10 @@ def draw_graph(adjacency_matrix, title=''):
 
 
 def generate_random_graph_nodes_lines(nodes, lines):
+    # Dodane po zajęciach:
+    if lines > nodes * (nodes - 1) / 2:
+        raise Exception("Number of lines is too big")
+
     incident_matrix = [[0 for i in range(lines)] for j in range(nodes)]
 
     for column in range(lines):
@@ -91,7 +95,8 @@ def generate_random_graph_nodes_lines(nodes, lines):
         while nodes_already_selected:
             selected_nodes = random.sample(range(nodes), k=2)
             for already_selected_nodes in range(column + 1):
-                if incident_matrix[selected_nodes[0]][already_selected_nodes] == 1 and incident_matrix[selected_nodes[1]][already_selected_nodes] == 1:
+                if incident_matrix[selected_nodes[0]][already_selected_nodes] == 1 and \
+                        incident_matrix[selected_nodes[1]][already_selected_nodes] == 1:
                     nodes_already_selected = True
                     break
             else:
@@ -107,7 +112,7 @@ def generate_random_graph_nodes_probability(nodes, probability):
     adjacency_matrix = [[0 for i in range(nodes)] for j in range(nodes)]
     for row in range(nodes):
         for column in range(row):
-            if random.choices([0, 1], weights=[1-probability, probability])[0] == 1:
+            if random.choices([0, 1], weights=[1 - probability, probability])[0] == 1:
                 adjacency_matrix[row][column] = 1
                 adjacency_matrix[column][row] = 1
 
@@ -153,7 +158,9 @@ if __name__ == '__main__':
         else:
             print("Unknown number provided :(")
     elif op == 2:
-        fun = input("1. Generate graph with n nodes and k connections.\n2. Generate graph with n nodes and probability of p.\n(First value - option, Second and third value - function arguments (optional)\n ").split(' ')
+        fun = input(
+            "1. Generate graph with n nodes and k connections.\n2. Generate graph with n nodes and probability of p.\n(First value - option, Second and third value - function arguments (optional)\n ").split(
+            ' ')
         if int(fun[0]) == 1:
             n = int(fun[1]) if len(fun) > 1 else 15
             k = int(fun[2]) if len(fun) > 2 else 10
@@ -168,7 +175,6 @@ if __name__ == '__main__':
         incident_matrix = adjacency_matrix_to_incidence_matrix(adjacency_matrix)
     else:
         print("Wrong option selected.")
-
 
     print("Adjacency matrix:")
     for row in adjacency_matrix:

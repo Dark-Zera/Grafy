@@ -54,7 +54,6 @@ def adjacency_list_to_adjacency_matrix(adjacency_list):
     return adjacency_matrix
 
 
-# do poprawy
 def adjacency_matrix_to_incidence_matrix(adjacency_matrix):
     num_nodes = len(adjacency_matrix)
     num_edges = sum(sum(row) for row in adjacency_matrix)
@@ -118,9 +117,6 @@ def draw_digraph(adjacency_matrix, title='', weights=None):
     num_of_edges = sum(sum(row) for row in adjacency_matrix)
     c = random.choices(['r', 'g', 'b', 'y', 'm'], k=num_of_edges)
 
-    # nx.draw_spring(G, with_labels=True)
-    # nx.draw_networkx_edges(G, pos=nx.spring_layout(G), edge_color=c, arrows=True, arrowstyle='->')
-    # nx.draw_networkx_nodes(G, pos=nx.spring_layout(G))
     nx.draw(G, pos=nx.fruchterman_reingold_layout(G), with_labels=True, ax=ax)
 
     if weights is not None:

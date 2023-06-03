@@ -1,9 +1,10 @@
-import numpy
-import pandas as pd
-import numpy as np
-import networkx as nx
-import matplotlib.pyplot as plt
 import random
+import matplotlib.pyplot as plt
+import networkx as nx
+import numpy
+import numpy as np
+import pandas as pd
+
 
 def draw_graph(adjacency_matrix, title=''):
     _, ax = plt.subplots()
@@ -14,6 +15,7 @@ def draw_graph(adjacency_matrix, title=''):
     G = nx.from_numpy_array(adjacency_matrix)
     nx.draw_circular(G, with_labels=True, ax=ax)
     plt.show()
+
 
 def adjacency_matrix_to_adjacency_list(matrix):
     adjacency_list = []
@@ -153,6 +155,7 @@ def fleury_algorithm(adjacency_matrix):
         edges_left -= 1
 
     return circuit
+
 
 def generate_graph(min_vert, max_vert):
     nodes = random.randint(min_vert, max_vert)
@@ -311,7 +314,7 @@ if __name__ == '__main__':
     elif option == 3:
         fun = input("Enter two values, first - number of nodes, second - degree\n").split(' ')
         adjacency_matrix = generate_random_regular_graph(int(fun[0]), int(fun[1]))
-        # print(type(adjacency_matrix))
+        print(type(adjacency_matrix))
         if type(adjacency_matrix) is numpy.ndarray:
             draw_graph(adjacency_matrix, 'Hamiltonian graph')
         else:
