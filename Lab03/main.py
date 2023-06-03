@@ -231,7 +231,7 @@ if __name__ == '__main__':
         draw_graph_with_costs(adjacency_matrix, edge_cost, title='Random graph with weigths')
 
     elif type == 2:
-        adjacency_matrix = generate_graph(8, 8)
+        adjacency_matrix = generate_graph(5, 5)
         while not is_graph_compact(connected_component(adjacency_matrix)):
             adjacency_matrix = randomise_graph(adjacency_matrix, 1)
         num_of_edges = sum(sum(row) for row in adjacency_matrix) // 2
@@ -263,11 +263,11 @@ if __name__ == '__main__':
 
         # Ex. 3
         matrix = []
-        print(costs_dict)
+        #print(costs_dict)
         for i in range(max_index + 1):
             d = dijkstra(adjacency_matrix, costs_dict, i)
             tmp = []
-            print(d.items())
+            #print(d.items())
             for j in d.items():
                 path_sum = j[1][0]
                 tmp.append(path_sum)
